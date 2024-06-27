@@ -6,10 +6,12 @@ export default defineConfig({
 	plugins: [react()],
 	server: {
 		port: 3000,
-		proxy: {
-			"/api": {
-				target: "http://localhost:5000",
-			},
-		},
+		// Proxy using makes request to frontend server to backend server
+		// no need to incude cookie in the request with credentials: "include"
+		// proxy: {
+		// 	"/api": {
+		// 		target: "http://localhost:5000",
+		// 	},
+		// },		
 	},
 });

@@ -40,7 +40,7 @@ const useSignup = () => {
       if (data.error) {
         throw new Error(data.error);
       }
-      console.log(data);
+      // console.log(data);
       if (res.status === 400) {
         throw new Error("User already exists");
       }
