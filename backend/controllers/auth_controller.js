@@ -1,15 +1,19 @@
 import User from "../models/user_model.js";
 import bcrypt from "bcryptjs";
-import generate_token_and_set_cookie from "../utils/generate_token.js";
+import generate_tokens_and_cookies from "../utils/generate_token.js";
+import asyncHandler from "express-async-handler";
+import jwt from "jsonwebtoken";
 
 export const signup = async (req, res) => {
   try {
     const { fullName, username, password, confirmPassword, gender } = req.body;
+
     if (password !== confirmPassword) {
       return res.status(400).json({ message: "Passwords do not match" });
     }
     const user = await User.findOne({ username });
     if (user) {
+      console.log("User already exists");
       return res.status(400).json({ message: "User already exists" });
     }
 
@@ -27,9 +31,10 @@ export const signup = async (req, res) => {
       profilePic: gender === "male" ? boyProfilePic : girlProfilePic,
     });
     if (newUser) {
-      generate_token_and_set_cookie(newUser._id, res);
+      // console.log("User created successfully");
+      generate_tokens_and_cookies(newUser._id, res);
       await newUser.save();
-
+     
       res.status(201).json({
         _id: newUser._id,
         fullName: newUser.fullName,
@@ -44,6 +49,31 @@ export const signup = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
+export const refresh = asyncHandler(async (req, res) => {
+  const cookie = req.cookies?.refreshToken;
+
+  if (!cookie) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const decoded = jwt.verify(cookie, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, {  
+      expiresIn: "5m",
+    });
+    res.json({ accessToken });
+    // console.log(JSON.stringify({ accessToken }));
+  } catch (error) {
+    console.error(error);
+    res.status(401).json({ error: "Unauthorized" });
+  }
+});
 
 export const login = async (req, res) => {
   try {
@@ -74,7 +104,8 @@ export const login = async (req, res) => {
 
 export const logout = (req, res) => {
 	try {
-		res.cookie("jwt", "", { maxAge: 0 });
+		// res.cookie("jwt", "", { maxAge: 0 });
+    res.cookie("refreshToken", "", { maxAge: 0 })
 		res.status(200).json({ message: "Logged out successfully" });
 	} catch (error) {
 		console.log("Error in logout controller", error.message);

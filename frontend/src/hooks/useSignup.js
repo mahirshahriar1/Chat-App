@@ -1,6 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext.jsx";
+import fetchWithBaseUrl from "../utils/FetchWithBaseUrl.jsx";
 
 const useSignup = () => {
   const [loading, setLoading] = useState(false);
@@ -24,7 +25,7 @@ const useSignup = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetchWithBaseUrl("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -33,19 +34,19 @@ const useSignup = () => {
           password,
           confirmPassword,
           gender,
-        }),
-      });
-
-      const data = await res.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
-      // console.log(data);
+        })      
+      });      
       if (res.status === 400) {
         throw new Error("User already exists");
       }
+      
+      const data = await res.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }         
       // console.log(data)
       localStorage.setItem("chat-user", JSON.stringify(data));
+
       setAuthUser(data);
     } catch (error) {
       toast.error(error.message);

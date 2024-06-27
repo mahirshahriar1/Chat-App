@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import GenderCheckbox from "./GenderCheckBox.jsx";
-import { useState } from "react";
+import useState from "react";
 import useSignup from "../../hooks/useSignup.js";
+// import useEffect from "react";
+// import fetchWithRefresh from "../../utils/FetchWithRefresh.jsx";
 
 const SignUp = () => {
   const [inputs, setInputs] = useState({
@@ -22,6 +24,23 @@ const SignUp = () => {
     e.preventDefault();
     await signup(inputs);
   };
+
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       const usersData = await fetchWithRefresh(`/users/`, {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       });
+  //       console.log(usersData);
+  //     } catch (error) {
+  //       console.error("Error fetching users:", error.message);
+  //     }
+  //   };
+  //   fetchUsers();
+  // }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-w-96 mx-auto">
