@@ -29,7 +29,7 @@ const fetchWithRefresh = async (url, options = {}) => {
       throw new Error(`Failed to fetch resource from ${url}`);
     }
 
-    return response.json();
+    return response;
   } catch (error) {
     console.error(`Error fetching resource from ${url}:`, error.message);
     throw error;

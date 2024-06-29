@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext.jsx";
-import fetchWithBaseUrl from "../utils/FetchWithBaseUrl.jsx";
+import fetchWithBaseUrl from "../utils/FetchWithBaseUrl.js";
 
 const useSignup = () => {
   const [loading, setLoading] = useState(false);
