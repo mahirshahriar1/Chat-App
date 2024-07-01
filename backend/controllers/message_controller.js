@@ -1,5 +1,6 @@
 import Conversation from "../models/conversation_model.js";
 import Message from "../models/message_model.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
   try {
@@ -10,26 +11,34 @@ export const sendMessage = async (req, res) => {
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
     });
+
     if (!conversation) {
-      conversation = new Conversation({
+      conversation = await Conversation.create({
         participants: [senderId, receiverId],
       });
     }
 
-    const newMessage = new Message({
-      senderId,
-      receiverId,
-      message,
-    });
-    if (newMessage) {
-      conversation.messages.push(newMessage._id);
+    const newMessage = new Message({ senderId, receiverId, message, });
+
+    if (newMessage) { conversation.messages.push(newMessage._id); }
+
+    // await conversation.save();
+    // await newMessage.save();
+
+    // this will run in parallel
+    await Promise.all([conversation.save(), newMessage.save()]);
+
+    // SOCKET IO FUNCTIONALITY WILL GO HERE
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    if (receiverSocketId) {
+      // io.to(<socket_id>).emit() used to send events to specific client
+      io.to(receiverSocketId).emit("newMessage", newMessage);
     }
 
-    await Promise.all([conversation.save(), newMessage.save()]);
     res.status(201).json(newMessage);
   } catch (error) {
-    console.log("Error in sendMessage controller", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.log("Error in sendMessage controller: ", error.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -37,11 +46,11 @@ export const getMessages = async (req, res) => {
   try {
     const { id: userToChatId } = req.params;
     const senderId = req.user._id;
-    console.log(senderId, ' ', userToChatId)
+
     const conversation = await Conversation.findOne({
       participants: { $all: [senderId, userToChatId] },
     }).populate("messages");
-    // populate method will replace the me ssage ids with the actual message objects
+    // populate method will replace the message ids with the actual message objects
     // ation = await Conversation.findOne({
     //     participants: [senderId, userToChatId]
     // }).populate("messages");

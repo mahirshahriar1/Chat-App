@@ -34,7 +34,7 @@ export const signup = async (req, res) => {
       // console.log("User created successfully");
       generate_tokens_and_cookies(newUser._id, res);
       await newUser.save();
-     
+
       res.status(201).json({
         _id: newUser._id,
         fullName: newUser.fullName,
@@ -64,9 +64,13 @@ export const refresh = asyncHandler(async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const accessToken = jwt.sign({ userId: user._id }, process.env.ACCESS_TOKEN_SECRET, {  
-      expiresIn: "5m",
-    });
+    const accessToken = jwt.sign(
+      { userId: user._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "5m",
+      }
+    );
     res.json({ accessToken });
     // console.log(JSON.stringify({ accessToken }));
   } catch (error) {
@@ -88,7 +92,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: "Invalid username or password" });
     }
 
-    generate_token_and_set_cookie(user._id, res);
+    generate_tokens_and_cookies(user._id, res);
 
     res.status(200).json({
       _id: user._id,
@@ -103,12 +107,12 @@ export const login = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-	try {
-		// res.cookie("jwt", "", { maxAge: 0 });
-    res.cookie("refreshToken", "", { maxAge: 0 })
-		res.status(200).json({ message: "Logged out successfully" });
-	} catch (error) {
-		console.log("Error in logout controller", error.message);
-		res.status(500).json({ error: "Internal Server Error" });
-	}
+  try {
+    // res.cookie("jwt", "", { maxAge: 0 });
+    res.cookie("refreshToken", "", { maxAge: 0 });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
