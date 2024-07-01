@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://chat-app-1-ioju.onrender.com/api";
 
 const fetchWithRefresh = async (url, options = {}) => {
   try {
