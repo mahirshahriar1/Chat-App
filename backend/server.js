@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "https://chat-app-1-ioju.onrender.com",
+    origin: ["http://localhost:3000", "https://chat-app-1-ioju.onrender.com"],
     methods: "GET, POST, PATCH, DELETE, PUT",
     credentials: true,
   })
