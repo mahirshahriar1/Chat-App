@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://chat-app-1-ioju.onrender.com";
 
 const fetchWithBaseUrl = async (endpoint, options = {}) => {
   const url = `${BASE_URL}${endpoint}`;
