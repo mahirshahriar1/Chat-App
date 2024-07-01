@@ -11,7 +11,7 @@ const fetchWithRefresh = async (url, options = {}) => {
       throw new Error("Failed to refresh token");
     }
     const refreshData = await refreshResponse.json();
-    const token = refreshData.accessToken;
+    const token = refreshData.accessToken
 
     // Add Authorization header with the new token
     const authOptions = {
